@@ -25,23 +25,35 @@ class Task(TaskCreate):
 
 
 def connection() -> sqlite3.Connection:
+    """Open a row-aware connection to the local task database."""
     db = sqlite3.connect(DATABASE_PATH)
     db.row_factory = sqlite3.Row
     return db
 
 
 def initialize_database() -> None:
+    """Create the table and starter rows when the database is empty."""
     with connection() as db:
-        db.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, done INTEGER NOT NULL DEFAULT 0)")
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS tasks ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "title TEXT NOT NULL, "
+            "done INTEGER NOT NULL DEFAULT 0)"
+        )
         if db.execute("SELECT COUNT(*) FROM tasks").fetchone()[0] == 0:
-            db.executemany("INSERT INTO tasks (title, done) VALUES (?, ?)", [("Learn SQLite", 0), ("Write a parameterized query", 0), ("Inspect tasks.db", 1)])
+            db.executemany(
+                "INSERT INTO tasks (title, done) VALUES (?, ?)",
+                [("Learn SQLite", 0), ("Write a parameterized query", 0), ("Inspect tasks.db", 1)],
+            )
 
 
 def as_task(row: sqlite3.Row) -> dict[str, object]:
+    """Convert SQLite's integer flag into the public boolean field."""
     return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
 
 
 def task_or_404(db: sqlite3.Connection, task_id: int) -> sqlite3.Row:
+    """Load a task row or raise the API's standard not-found error."""
     row = db.execute("SELECT id, title, done FROM tasks WHERE id = ?", (task_id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="Task not found")

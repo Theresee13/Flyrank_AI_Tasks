@@ -47,7 +47,8 @@ _STATUS_MAP = {
 
 
 @app.exception_handler(AppError)
-async def app_error_handler(request: Request, exc: AppError):
+async def app_error_handler(_request: Request, exc: AppError):
+    """Translate known application errors into stable HTTP responses."""
     status_code = _STATUS_MAP.get(type(exc), status.HTTP_400_BAD_REQUEST)
     return JSONResponse(
         status_code=status_code,
@@ -56,7 +57,7 @@ async def app_error_handler(request: Request, exc: AppError):
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_error_handler(request: Request, exc: RequestValidationError):
+async def validation_error_handler(_request: Request, exc: RequestValidationError):
     """Turns Pydantic's default 422 payload into our consistent error shape (400)."""
     first_error = exc.errors()[0]
     field = ".".join(str(loc) for loc in first_error["loc"] if loc != "body")
@@ -86,4 +87,5 @@ app.include_router(user_routes.router)
 
 @app.get("/health", tags=["health"])
 async def health_check():
+    """Expose a lightweight readiness response for local checks."""
     return {"status": "ok"}

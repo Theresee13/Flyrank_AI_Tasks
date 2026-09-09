@@ -1,3 +1,5 @@
+// Application entry point: keep startup separate from route definitions so
+// the exported Express instance remains straightforward to test.
 const express = require("express");
 const courseRoutes = require("./routes/courses");
 

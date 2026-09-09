@@ -30,14 +30,14 @@ app.use(helmet());
 app.use(cors());
 
 // ---- Rate limiting (applies to the whole API) ----
-const limiter = rateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 300, // limit each IP to 300 requests per window
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.', error: {} },
 });
-app.use('/api', limiter);
+app.use('/api', apiLimiter);
 
 // ---- Performance ----
 app.use(compression());

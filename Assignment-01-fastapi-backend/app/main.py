@@ -1,3 +1,5 @@
+"""HTTP application setup for the in-memory task API."""
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -16,13 +18,14 @@ app.include_router(tasks_router)
 
 @app.exception_handler(RequestValidationError)
 async def request_validation_error(_: Request, error: RequestValidationError) -> JSONResponse:
-    """Match the assignment's explicit 400 JSON error contract."""
+    """Return the assignment's explicit 400 JSON validation contract."""
     first_error = error.errors()[0]
     return JSONResponse(status_code=400, content={"error": first_error["msg"]})
 
 
 @app.exception_handler(StarletteHTTPException)
 async def http_error(_: Request, error: StarletteHTTPException) -> JSONResponse:
+    """Keep framework HTTP errors in the API's compact error shape."""
     return JSONResponse(status_code=error.status_code, content={"error": str(error.detail)})
 
 

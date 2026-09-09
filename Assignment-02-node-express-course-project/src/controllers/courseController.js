@@ -1,5 +1,7 @@
 const courseStore = require("../data/courses");
 
+// Validation stays local to the controller so the in-memory store only
+// receives normalized course records.
 function validateCourse(payload) {
   const { title, instructor, duration } = payload;
   if (typeof title !== "string" || title.trim() === "") {

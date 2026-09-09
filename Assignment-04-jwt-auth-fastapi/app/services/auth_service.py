@@ -14,6 +14,7 @@ from app.utils.security import hash_password, verify_password, create_access_tok
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:
+    """Return the first user matching an email, if one exists."""
     return db.query(User).filter(User.email == email).first()
 
 
